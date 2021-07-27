@@ -1,5 +1,3 @@
-# -*- coding: cp949 -*-
-
 import pickle
 import os.path
 from googleapiclient.discovery import build
@@ -87,12 +85,15 @@ class ValheimSaveFileUpdater():
     def __init__(self,
                  client_secret_file_name,
                  drive_folder_id,
-                 local_directory_path):
+                 local_directory_path,
+                 world_name):
         self._drive_service = get_google_drive_v3_service(
             client_secret_file_name)
 
         self._drive_folder_id = drive_folder_id
         self._local_directory_path = local_directory_path.replace('/', '\\')
+
+        self._world_name = world_name
 
         path_length = len(self._local_directory_path)
         if self._local_directory_path[path_length - 1] != '\\':
@@ -131,8 +132,8 @@ class ValheimSaveFileUpdater():
         drive_data_file_info = self.get_drive_file_list(
             "files(id, name, md5Checksum)")
 
-        fwl_file_path = self._local_directory_path + "HarlemStreets.fwl"
-        db_file_path = self._local_directory_path + "HarlemStreets.db"
+        fwl_file_path = self._local_directory_path + self._world_name + ".fwl"
+        db_file_path = self._local_directory_path + self._world_name + ".db"
 
         local_fwl_exists = True
 
@@ -183,8 +184,8 @@ class ValheimSaveFileUpdater():
         drive_data_file_info = self.get_drive_file_list(
             "files(id, name, md5Checksum)")
 
-        fwl_file_path = self._local_directory_path + "HarlemStreets.fwl"
-        db_file_path = self._local_directory_path + "HarlemStreets.db"
+        fwl_file_path = self._local_directory_path + self._world_name + ".fwl"
+        db_file_path = self._local_directory_path + self._world_name + ".db"
 
         try:
             fwl_md5 = get_md5_string(fwl_file_path)
@@ -197,12 +198,12 @@ class ValheimSaveFileUpdater():
             return
 
         fwl_metadata = {
-            'name': 'HarlemStreets.fwl',
-            'parents': ['1L8RRymUxreilmDkrJJpbnQ4KwftzpAYJ']
+            'name': self._world_name + '.fwl',
+            'parents': [self._drive_folder_id]
         }
         db_metadata = {
-            'name': 'HarlemStreets.db',
-            'parents': ['1L8RRymUxreilmDkrJJpbnQ4KwftzpAYJ']
+            'name': self._world_name + '.db',
+            'parents': [self._drive_folder_id]
         }
 
         drive_fwl_exists = False

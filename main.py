@@ -7,13 +7,12 @@ import configparser
 from MainUI import MainUI
 from ConfiguresUI import ConfiguresUI
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QMessageBox, \
+    QFileDialog
 
-import numpy as np
-
-BACKUPSTYLE_TIME = 1
-BACKUPSTYLE_OLD = 2
-BACKUPSTYLE_NOBACKUP = 4
+BACKUPSTYLE_TIME = 0
+BACKUPSTYLE_OLD = 1
+BACKUPSTYLE_NOBACKUP = 2
 
 
 def get_default_config():
@@ -28,13 +27,12 @@ def get_default_config():
         .format(user_name)
 
     config['General'] = {
+        'worldname': "None",
         'drivefolderid': "None",
         'savefilepath': default_path,
         'backupstyle': BACKUPSTYLE_TIME,
-        'minimizetosystemtrayonclose': False
+        'minimizetosystemtrayonclose': 0
     }
-
-    print(config)
 
     return config
 
@@ -51,11 +49,14 @@ def create_config_file_if_not_exists():
             config.write(config_file)
 
 
-class VVDSConfiguresUI(ConfiguresUI):
-    def setupUi(self, MainWindow):
-        super().setupUi(MainWindow)
+class ConfiguresWidget(QWidget):
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
 
-        self.SelectSaveFilePathButton.clicked.connect(
+        self.ui = ConfiguresUI()
+        self.ui.setupUi(self)
+
+        self.ui.SelectSaveFilePathButton.clicked.connect(
             self.select_save_file_path)
 
         create_config_file_if_not_exists()
@@ -64,43 +65,54 @@ class VVDSConfiguresUI(ConfiguresUI):
 
         with open("config.ini", "r", encoding="utf-8") as config_file:
             self.config.read_file(config_file)
-            self.DriveFolderIDEdit.setText(
+            self.ui.WorldNameEdit.setText(
+                self.config['General']['worldname'])
+            self.ui.DriveFolderIDEdit.setText(
                 self.config['General']['drivefolderid'])
-            self.SaveFilePathEdit.setText(
+            self.ui.SaveFilePathEdit.setText(
                 self.config['General']['savefilepath'])
 
-            backup_style = self.config['General']['backupstyle']
-            backup_style_bits = [int(x) for x in bin(int(backup_style))[2:]]
-            radio_button_initializer = np.pad(
-                backup_style_bits, (3 - len(backup_style_bits), 0))
+            backup_style = int(self.config['General']['backupstyle'])
+            self.ui.TimeRadioButton.setChecked(backup_style == BACKUPSTYLE_TIME)
+            self.ui.OldRadioButton.setChecked(backup_style == BACKUPSTYLE_OLD)
+            self.ui.NoBackupRadioButton.setChecked(backup_style == BACKUPSTYLE_NOBACKUP)
 
-            self.TimeRadioButton.setChecked(radio_button_initializer[0])
-            self.OldRadioButton.setChecked(radio_button_initializer[1])
-            self.NoBackupRadioButton.setChecked(radio_button_initializer[2])
-
-            self.TrayRadioButton.setChecked(
-                bool(self.config['General']['minimizetosystemtrayonclose']))
+            self.ui.TrayCheckBox.setChecked(
+                bool(int(self.config['General']['minimizetosystemtrayonclose'])))
 
     def select_save_file_path(self):
-        self.SaveFilePathEdit.setText(QFileDialog.getExistingDirectory(
+        self.ui.SaveFilePathEdit.setText(QFileDialog.getExistingDirectory(
             self, "Select Save File Directory"))
 
     def closeEvent(self, event):
-        # do something BOB!
+        self.config['General']['worldname'] = self.ui.WorldNameEdit.text()
+        self.config['General']['drivefolderid'] = self.ui.DriveFolderIDEdit.text()
+        self.config['General']['savefilepath'] = self.ui.SaveFilePathEdit.text()
+        self.config['General']['backupstyle'] = str( \
+            self.ui.TimeRadioButton.isChecked() * BACKUPSTYLE_TIME + \
+            self.ui.OldRadioButton.isChecked() * BACKUPSTYLE_OLD + \
+            self.ui.NoBackupRadioButton.isChecked() * BACKUPSTYLE_NOBACKUP)
+
+        self.config['General']['minimizetosystemtrayonclose'] = \
+            str(int(self.ui.TrayCheckBox.isChecked()))
+
         with open("config.ini", "w", encoding="utf-8") as config_file:
             self.config.write(config_file)
 
         event.accept()
 
 
-class VVDSMainUI(MainUI):
-    def setupUi(self, MainWindow):
-        super().setupUi(MainWindow)
+class MainWindow(QMainWindow):
+    def __init__(self, parent=None):
+        QMainWindow.__init__(self, parent)
 
-        self.UpdateLocalFileButton.clicked.connect(self.update_local)
-        self.UpdateDriveFileButton.clicked.connect(self.update_drive)
-        self.AutoUpdateCheckBox.stateChanged.connect(self.toggle_auto_update)
-        self.actionConfigures.triggered.connect(self.open_configures)
+        self.ui = MainUI()
+        self.ui.setupUi(self)
+
+        self.ui.UpdateLocalFileButton.clicked.connect(self.update_local)
+        self.ui.UpdateDriveFileButton.clicked.connect(self.update_drive)
+        self.ui.AutoUpdateCheckBox.stateChanged.connect(self.toggle_auto_update)
+        self.ui.actionConfigures.triggered.connect(self.open_configures)
 
         create_config_file_if_not_exists()
 
@@ -109,19 +121,20 @@ class VVDSMainUI(MainUI):
         with open("config.ini", "r", encoding="cp949") as config_file:
             self.config.read_file(config_file)
             self.auto_update = self.config['Main']['autoupdate']
+            self.world_name = self.config['General']['worldname']
             self.drive_folder_id = self.config['General']['drivefolderid']
             self.save_file_path = self.config['General']['savefilepath']
+            self.backup_style = self.config['General']['backupstyle']
 
             self.save_file_updater = ValheimSaveFileUpdater(
                 "credentials.json",
                 self.drive_folder_id,
-                self.save_file_path)
+                self.save_file_path,
+                self.world_name)
 
     def open_configures(self):
-        ui = VVDSConfiguresUI()
-        widget = QWidget()
-        ui.setupUi(widget)
-        widget.exec_()
+        self._configures_widget = ConfiguresWidget()
+        self._configures_widget.show()
 
     def update_local(self):
         if len(self.save_file_path) < 1 or self.save_file_path == "None":
@@ -170,8 +183,6 @@ class VVDSMainUI(MainUI):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = QMainWindow()
-    ui = VVDSMainUI()
-    ui.setupUi(window)
+    window = MainWindow()
     window.show()
     sys.exit(app.exec_())

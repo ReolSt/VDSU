@@ -10,7 +10,7 @@ InstallDir "$DESKTOP\VDSU"
 !define MUI_ABORTWARNING
 
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "C:\Users\Emacser\Desktop\python\VVDS\License.txt"
+!insertmacro MUI_PAGE_LICENSE "C:\Users\Emacser\Desktop\python\VDSU\License.txt"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -49,7 +49,7 @@ Section "Openssl 1.1.1"
   ExecWait $INSTDIR\OpensslInstaller.exe
 SectionEnd
 
-Section "VVDS"
+Section "VDSU"
   SetOutPath "$INSTDIR"
 
   File License.txt
@@ -58,7 +58,7 @@ Section "VVDS"
   File MainUI.py
   File ConfiguresUI.py
   File main.py
-  File VVDS.exe
+  File VDSU.exe
 
   WriteUninstaller $INSTDIR\Uninstall.exe
 SectionEnd

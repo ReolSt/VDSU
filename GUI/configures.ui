@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>634</width>
-    <height>330</height>
+    <height>394</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>621</width>
-     <height>311</height>
+     <height>371</height>
     </rect>
    </property>
    <property name="currentIndex">
@@ -71,7 +71,7 @@
        <x>10</x>
        <y>100</y>
        <width>591</width>
-       <height>101</height>
+       <height>141</height>
       </rect>
      </property>
      <property name="title">
@@ -81,7 +81,7 @@
       <property name="geometry">
        <rect>
         <x>210</x>
-        <y>30</y>
+        <y>60</y>
         <width>291</width>
         <height>21</height>
        </rect>
@@ -94,7 +94,7 @@
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>30</y>
+        <y>60</y>
         <width>41</width>
         <height>21</height>
        </rect>
@@ -107,22 +107,22 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>20</y>
+        <y>40</y>
         <width>91</width>
-        <height>41</height>
+        <height>61</height>
        </rect>
       </property>
       <property name="text">
-       <string>Save File Path</string>
+       <string>Save file path</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_3">
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>70</y>
+        <y>100</y>
         <width>101</width>
-        <height>16</height>
+        <height>21</height>
        </rect>
       </property>
       <property name="text">
@@ -133,9 +133,9 @@
       <property name="geometry">
        <rect>
         <x>220</x>
-        <y>70</y>
+        <y>100</y>
         <width>71</width>
-        <height>16</height>
+        <height>21</height>
        </rect>
       </property>
       <property name="text">
@@ -146,9 +146,9 @@
       <property name="geometry">
        <rect>
         <x>350</x>
-        <y>70</y>
+        <y>100</y>
         <width>71</width>
-        <height>16</height>
+        <height>21</height>
        </rect>
       </property>
       <property name="text">
@@ -159,13 +159,39 @@
       <property name="geometry">
        <rect>
         <x>470</x>
-        <y>70</y>
+        <y>100</y>
         <width>81</width>
-        <height>16</height>
+        <height>21</height>
        </rect>
       </property>
       <property name="text">
        <string>No Backup</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>91</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>World name</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="WorldNameEdit">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>20</y>
+        <width>291</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
       </property>
      </widget>
     </widget>
@@ -173,7 +199,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>210</y>
+       <y>260</y>
        <width>591</width>
        <height>71</height>
       </rect>
