@@ -119,9 +119,9 @@ class VVDSMainUI(MainUI):
 
     def open_configures(self):
         ui = VVDSConfiguresUI()
-        widget = QWidget(self)
+        widget = QWidget()
         ui.setupUi(widget)
-        widget.show()
+        widget.exec_()
 
     def update_local(self):
         if len(self.save_file_path) < 1 or self.save_file_path == "None":
