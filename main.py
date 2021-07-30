@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
 
         self.config = configparser.ConfigParser()
 
-        with open("config.ini", "r", encoding="cp949") as config_file:
+        with open("config.ini", "r", encoding="utf-8") as config_file:
             self.config.read_file(config_file)
             self.auto_update = self.config['Main']['autoupdate']
             self.world_name = self.config['General']['worldname']

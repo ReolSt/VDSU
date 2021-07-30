@@ -1,5 +1,6 @@
 import pickle
 import os.path
+from abc import abstractmethod
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -81,23 +82,22 @@ def get_md5_string(file_path):
     return md5_string
 
 
-class ValheimSaveFileUpdater():
+class SaveFileUpdater():
     def __init__(self,
                  client_secret_file_name,
                  drive_folder_id,
-                 local_directory_path,
-                 world_name):
+                 local_directory_path):
         self._drive_service = get_google_drive_v3_service(
             client_secret_file_name)
 
         self._drive_folder_id = drive_folder_id
         self._local_directory_path = local_directory_path.replace('/', '\\')
 
-        self._world_name = world_name
-
         path_length = len(self._local_directory_path)
         if self._local_directory_path[path_length - 1] != '\\':
             self._local_directory_path += '//'
+
+        self._file_names = []
 
     def get_drive_file_list(self, fields):
         q = "'{}' in parents".format(self._drive_folder_id)
@@ -106,6 +106,12 @@ class ValheimSaveFileUpdater():
             q=q, fields=fields).execute()
 
         return results.get('files', [])
+
+    def get_metadata(self, file_name):
+        return {
+            'name': file_name,
+            'parents': [self._drive_folder_id]
+        }
 
     def download_from_drive(self, file_id, file_path_to_save):
         request = self._drive_service.files().get_media(fileId=file_id)
@@ -132,51 +138,51 @@ class ValheimSaveFileUpdater():
         drive_data_file_info = self.get_drive_file_list(
             "files(id, name, md5Checksum)")
 
-        fwl_file_path = self._local_directory_path + self._world_name + ".fwl"
-        db_file_path = self._local_directory_path + self._world_name + ".db"
+        file_paths = map(lambda s: self._local_directory_path + s, self._file_names)
 
-        local_fwl_exists = True
+        local_file_infos = []
 
-        try:
-            fwl_md5 = get_md5_string(fwl_file_path)
-        except FileNotFoundError:
-            local_fwl_exists = False
-
-        local_db_exists = True
-
-        try:
-            db_md5 = get_md5_string(db_file_path)
-        except FileNotFoundError:
-            local_db_exists = False
+        for i, file_path in enumerate(file_paths):
+            try:
+                md5 = get_md5_string(file_path)
+                local_file_infos.append({
+                    "name": self._file_names[i],
+                    "path": file_path,
+                    "md5": md5
+                })
+            except FileNotFoundError:
+                local_file_infos.append({
+                    "name": self._file_names[i],
+                    "path": "",
+                    "md5": ""
+                })
 
         for drive_file_info in drive_data_file_info:
             drive_file_id = drive_file_info['id']
             drive_file_name = drive_file_info['name']
             drive_file_md5 = drive_file_info['md5Checksum']
 
-            if any([ch.isdigit() for ch in drive_file_name]):
+            for index, local_file_info in enumerate(local_file_infos):
+                if drive_file_name == local_file_info['name']:
+                    local_file_infos[index]['drive_id'] = drive_file_id
+                    local_file_infos[index]['drive_md5'] = drive_file_md5
+
+        for local_file_info in local_file_infos:
+            local_file_name = local_file_info['name']
+            local_file_path = local_file_info['path']
+            local_file_md5 = local_file_info['md5']
+
+            try:
+                drive_file_id = local_file_info['drive_id']
+                drive_file_md5 = local_file_info['drive_md5']
+            except KeyError:
                 continue
 
-            if drive_file_name.find('.old') > -1:
-                continue
+            if local_file_md5 != drive_file_md5:
+                if local_file_path != "":
+                    create_local_backup_file(local_file_path, current_time)
 
-            if drive_file_name.find('.fwl') > -1:
-                drive_fwl_id = drive_file_id
-                if local_fwl_exists and fwl_md5 != drive_file_md5:
-                    create_local_backup_file(fwl_file_path, current_time)
-                    self.download_from_drive(drive_file_id, fwl_file_path)
-
-            elif drive_file_name.find('.db') > -1:
-                drive_db_id = drive_file_id
-                if local_db_exists and db_md5 != drive_file_md5:
-                    create_local_backup_file(db_file_path, current_time)
-                    self.download_from_drive(drive_file_id, db_file_path)
-
-        if not local_db_exists:
-            self.download_from_drive(drive_fwl_id, fwl_file_path)
-
-        if not local_fwl_exists:
-            self.download_from_drive(drive_db_id, db_file_path)
+                self.download_from_drive(drive_file_id, local_file_path)
 
     def update_drive(self):
         current_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
@@ -184,66 +190,86 @@ class ValheimSaveFileUpdater():
         drive_data_file_info = self.get_drive_file_list(
             "files(id, name, md5Checksum)")
 
-        fwl_file_path = self._local_directory_path + self._world_name + ".fwl"
-        db_file_path = self._local_directory_path + self._world_name + ".db"
+        local_file_infos = []
 
-        try:
-            fwl_md5 = get_md5_string(fwl_file_path)
-        except FileNotFoundError:
-            return
-
-        try:
-            db_md5 = get_md5_string(db_file_path)
-        except FileNotFoundError:
-            return
-
-        fwl_metadata = {
-            'name': self._world_name + '.fwl',
-            'parents': [self._drive_folder_id]
-        }
-        db_metadata = {
-            'name': self._world_name + '.db',
-            'parents': [self._drive_folder_id]
-        }
-
-        drive_fwl_exists = False
-        drive_db_exists = False
+        for index, file_path in enumerate(self._file_names):
+            try:
+                md5 = get_md5_string(file_path)
+                local_file_infos.append({
+                    'name': self._file_names[index],
+                    'path': file_path,
+                    'md5': md5
+                })
+            except FileNotFoundError:
+                continue
 
         for drive_file_info in drive_data_file_info:
             drive_file_id = drive_file_info['id']
             drive_file_name = drive_file_info['name']
             drive_file_md5 = drive_file_info['md5Checksum']
 
-            if any([ch.isdigit() for ch in drive_file_name]):
-                continue
+            for index, local_file_info in enumerate(local_file_infos):
+                if drive_file_name == local_file_info['name']:
+                    local_file_infos[index]['drive_id'] = drive_file_id
+                    local_file_infos[index]['drive_md5'] = drive_file_md5
 
-            if drive_file_name.find('.old') > -1:
-                continue
+        for local_file_info in local_file_infos:
+            local_file_name = local_file_info['name']
+            local_file_path = local_file_info['path']
+            local_file_md5 = local_file_info['md5']
 
-            if drive_file_name.find('.fwl') > -1:
-                backup_file_name = get_backup_file_name(
+            try:
+                drive_file_id = local_file_info['drive_id']
+                drive_file_md5 = local_file_info['drive_md5']
+            except KeyError:
+                drive_file_id = ""
+                drive_file_md5 = ""
+
+            metadata = self.get_metadata(local_file_info['name'])
+            backup_file_name = get_backup_file_name(
                     drive_file_name, current_time)
 
-                drive_fwl_exists = True
-                if fwl_md5 != drive_file_md5:
+            if local_file_md5 != drive_file_md5:
+                if drive_file_id != "":
                     self._drive_service.files().update(
-                        fileId=drive_file_id,
-                        body={'name': backup_file_name}).execute()
-                    self.upload_to_drive(fwl_metadata, fwl_file_path)
+                                fileId=drive_file_id,
+                                body={'name': backup_file_name}).execute()
 
-            elif drive_file_name.find('.db') > -1:
-                backup_file_name = get_backup_file_name(
-                    drive_file_name, current_time)
+                self.upload_to_drive(metadata, local_file_path)
 
-                drive_db_exists = True
-                if db_md5 != drive_file_md5:
-                    self._drive_service.files().update(
-                        fileId=drive_file_id,
-                        body={'name': backup_file_name}).execute()
-                    self.upload_to_drive(db_metadata, db_file_path)
 
-        if not drive_fwl_exists:
-            self.upload_to_drive(fwl_metadata, fwl_file_path)
+class ValheimSaveFileUpdater(SaveFileUpdater):
+    def __init__(self,
+                 client_secret_file_name,
+                 drive_folder_id,
+                 local_directory_path,
+                 world_name):
+        super().__init__(
+            client_secret_file_name,
+            drive_folder_id,
+            local_directory_path)
 
-        if not drive_db_exists:
-            self.upload_to_drive(db_metadata, db_file_path)
+        self._world_name = world_name
+
+        self._file_names = [
+            self._world_name + ".fwl",
+            self._world_name + ".db"
+        ]
+
+
+class TerrariaSaveFileUpdater(SaveFileUpdater):
+    def __init__(self,
+                 client_secret_file_name,
+                 drive_folder_id,
+                 local_directory_path,
+                 world_name):
+        super().__init__(
+            client_secret_file_name,
+            drive_folder_id,
+            local_directory_path)
+
+        self._world_name = world_name
+
+        self._file_names = [
+            self._world_name + ".wld"
+        ]

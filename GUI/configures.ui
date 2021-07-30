@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>634</width>
-    <height>394</height>
+    <height>443</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,11 +19,11 @@
      <x>10</x>
      <y>10</y>
      <width>621</width>
-     <height>371</height>
+     <height>421</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="General">
     <attribute name="title">
@@ -35,66 +35,40 @@
        <x>10</x>
        <y>10</y>
        <width>591</width>
-       <height>71</height>
+       <height>191</height>
       </rect>
      </property>
      <property name="title">
-      <string>Google Drive Preference</string>
+      <string>Update Preference</string>
      </property>
      <widget class="QLabel" name="label">
       <property name="geometry">
        <rect>
         <x>20</x>
         <y>20</y>
-        <width>171</width>
+        <width>191</width>
         <height>41</height>
        </rect>
       </property>
       <property name="text">
-       <string>Save File Folder ID (see URL)</string>
+       <string>Google Drive Folder ID (see URL)</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="DriveFolderIDEdit">
       <property name="geometry">
        <rect>
-        <x>210</x>
+        <x>230</x>
         <y>30</y>
-        <width>351</width>
+        <width>331</width>
         <height>21</height>
        </rect>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>100</y>
-       <width>591</width>
-       <height>141</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Local File Preference</string>
-     </property>
-     <widget class="QLineEdit" name="SaveFilePathEdit">
-      <property name="geometry">
-       <rect>
-        <x>210</x>
-        <y>60</y>
-        <width>291</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
       </property>
      </widget>
      <widget class="QPushButton" name="SelectSaveFilePathButton">
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>60</y>
+        <y>70</y>
         <width>41</width>
         <height>21</height>
        </rect>
@@ -103,78 +77,39 @@
        <string>...</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>40</y>
-        <width>91</width>
+        <y>50</y>
+        <width>121</width>
         <height>61</height>
        </rect>
       </property>
       <property name="text">
-       <string>Save file path</string>
+       <string>Local Save file path</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_3">
+     <widget class="QLineEdit" name="SaveFilePathEdit">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>100</y>
-        <width>101</width>
+        <x>210</x>
+        <y>70</y>
+        <width>291</width>
         <height>21</height>
        </rect>
       </property>
-      <property name="text">
-       <string>Backup File Style</string>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="TimeRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>220</x>
-        <y>100</y>
-        <width>71</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Time</string>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="OldRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>350</x>
-        <y>100</y>
-        <width>71</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>.old</string>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="NoBackupRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>470</x>
-        <y>100</y>
-        <width>81</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>No Backup</string>
+      <property name="readOnly">
+       <bool>true</bool>
       </property>
      </widget>
      <widget class="QLabel" name="label_4">
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>10</y>
+        <y>100</y>
         <width>91</width>
-        <height>51</height>
+        <height>41</height>
        </rect>
       </property>
       <property name="text">
@@ -185,7 +120,7 @@
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>20</y>
+        <y>110</y>
         <width>291</width>
         <height>21</height>
        </rect>
@@ -194,12 +129,55 @@
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>150</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Game Preset</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="GamePresetComboBox">
+      <property name="geometry">
+       <rect>
+        <x>450</x>
+        <y>150</y>
+        <width>111</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>Valheim</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Minecraft</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Terraria</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Diablo II</string>
+       </property>
+      </item>
+     </widget>
     </widget>
     <widget class="QGroupBox" name="groupBox_4">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>260</y>
+       <y>310</y>
        <width>591</width>
        <height>71</height>
       </rect>
@@ -223,14 +201,120 @@
      <widget class="QCheckBox" name="TrayRadioButton">
       <property name="geometry">
        <rect>
-        <x>250</x>
+        <x>550</x>
         <y>25</y>
-        <width>21</width>
+        <width>16</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
        <string/>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>220</y>
+       <width>591</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Backup</string>
+     </property>
+     <widget class="QRadioButton" name="NoBackupRadioButton">
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>30</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>No Backup</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="OldRadioButton">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>30</y>
+        <width>71</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>.old</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="TimeRadioButton">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>30</y>
+        <width>71</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Time</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Backup File Style</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>Auto Update</string>
+    </attribute>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>591</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>periodical update</string>
+     </property>
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>151</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Updates every x minutes</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="EveryXMinutesEdit">
+      <property name="geometry">
+       <rect>
+        <x>502</x>
+        <y>20</y>
+        <width>71</width>
+        <height>20</height>
+       </rect>
       </property>
      </widget>
     </widget>
