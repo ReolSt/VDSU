@@ -1,4 +1,4 @@
-from ValheimSaveFileUpdater import ValheimSaveFileUpdater
+from ValheimSaveFileUpdater import ValheimSaveFileUpdater, TerrariaSaveFileUpdater
 import sys
 import os
 
@@ -9,6 +9,11 @@ from ConfiguresUI import ConfiguresUI
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QMessageBox, \
     QFileDialog
+
+GAMEPRESET_VALHEIM = 0
+GAMEPRESET_MINECRAFT = 1
+GAMEPRESET_TERRARIA = 2
+GAMEPRESET_DIABLO2 = 3
 
 BACKUPSTYLE_TIME = 0
 BACKUPSTYLE_OLD = 1
@@ -29,6 +34,7 @@ def get_default_config():
     config['General'] = {
         'worldname': "None",
         'drivefolderid': "None",
+        'gamepreset': 0,
         'savefilepath': default_path,
         'backupstyle': BACKUPSTYLE_TIME,
         'minimizetosystemtrayonclose': 0
@@ -67,6 +73,8 @@ class ConfiguresWidget(QWidget):
             self.config.read_file(config_file)
             self.ui.WorldNameEdit.setText(
                 self.config['General']['worldname'])
+            self.ui.GamePresetComboBox.setCurrentIndex(
+                int(self.config['General']['gamepreset']))
             self.ui.DriveFolderIDEdit.setText(
                 self.config['General']['drivefolderid'])
             self.ui.SaveFilePathEdit.setText(
@@ -86,6 +94,7 @@ class ConfiguresWidget(QWidget):
 
     def closeEvent(self, event):
         self.config['General']['worldname'] = self.ui.WorldNameEdit.text()
+        self.config['General']['gamepreset'] = str(self.ui.GamePresetComboBox.currentIndex())
         self.config['General']['drivefolderid'] = self.ui.DriveFolderIDEdit.text()
         self.config['General']['savefilepath'] = self.ui.SaveFilePathEdit.text()
         self.config['General']['backupstyle'] = str( \
@@ -122,15 +131,23 @@ class MainWindow(QMainWindow):
             self.config.read_file(config_file)
             self.auto_update = self.config['Main']['autoupdate']
             self.world_name = self.config['General']['worldname']
+            self.game_preset = int(self.config['General']['gamepreset'])
             self.drive_folder_id = self.config['General']['drivefolderid']
             self.save_file_path = self.config['General']['savefilepath']
             self.backup_style = self.config['General']['backupstyle']
 
-            self.save_file_updater = ValheimSaveFileUpdater(
-                "credentials.json",
-                self.drive_folder_id,
-                self.save_file_path,
-                self.world_name)
+            if self.game_preset == GAMEPRESET_VALHEIM:
+                self.save_file_updater = ValheimSaveFileUpdater(
+                    "credentials.json",
+                    self.drive_folder_id,
+                    self.save_file_path,
+                    self.world_name)
+            elif self.game_preset == GAMEPRESET_TERRARIA:
+                self.save_file_updater = TerrariaSaveFileUpdater(
+                    "credentials.json",
+                    self.drive_folder_id,
+                    self.save_file_path,
+                    self.world_name)
 
     def open_configures(self):
         self._configures_widget = ConfiguresWidget()
