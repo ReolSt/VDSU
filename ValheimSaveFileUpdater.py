@@ -25,13 +25,10 @@ def load_credentials(client_secret_file_name):
         with open('token.pickle', 'rb') as token:
             creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(requests.Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                client_secret_file_name, SCOPES)
-            creds = flow.run_local_server(port=0)
+    if not creds or not creds.token or not creds.valid or creds.expired:
+        flow = InstalledAppFlow.from_client_secrets_file(
+            client_secret_file_name, SCOPES)
+        creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
@@ -190,6 +187,8 @@ class SaveFileUpdater():
         drive_data_file_info = self.get_drive_file_list(
             "files(id, name, md5Checksum)")
 
+        print(self._file_names)
+
         local_file_infos = []
 
         for index, file_path in enumerate(self._file_names):
@@ -203,6 +202,7 @@ class SaveFileUpdater():
             except FileNotFoundError:
                 continue
 
+        print(local_file_infos)
         for drive_file_info in drive_data_file_info:
             drive_file_id = drive_file_info['id']
             drive_file_name = drive_file_info['name']
@@ -228,6 +228,8 @@ class SaveFileUpdater():
             metadata = self.get_metadata(local_file_info['name'])
             backup_file_name = get_backup_file_name(
                     drive_file_name, current_time)
+
+            print(local_file_info)
 
             if local_file_md5 != drive_file_md5:
                 if drive_file_id != "":
